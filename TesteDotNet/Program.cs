@@ -67,7 +67,29 @@ namespace TesteDotNet
                                   "\n - Multiplicação (multiplicacao ou *)" +
                                   "\n - Divisão (divisao ou /)" +
                                   "\n\nVocê pode digitar tanto \"2+2\", \"quanto 2;soma;2\", quanto \"2;+;2\"" +
-                                  "\n\nMas se atente que você pode efetuar apenas uma operação de cada vez!");
+                                  "\n\nMas se atente que você pode efetuar apenas uma operação de cada vez!" +
+                                  "\n\nPara sair, digite \"sair\", e para exibir esta ajuda, digite \"ajuda\"");
+
+            Console.WriteLine("Digite seu comando: ");
+            string comando = Console.ReadLine() ?? "";
+
+            if (comando.Equals("ajuda"))
+            {
+                EfetuarOperação(true);
+            } else if (comando.Equals("sair"))
+            {
+                return;
+            } else
+            {
+                ProcessaOperacao(comando);
+                EfetuarOperação();
+            }
+        }
+
+        private static void ProcessaOperacao(string comando)
+        {
+            // TODO: Executar o comando...
+            Console.WriteLine("Resultado: {0}", comando);
         }
 
         private static void SeErro(Exception excecao)
