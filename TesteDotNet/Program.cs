@@ -7,6 +7,7 @@ namespace TesteDotNet
         static void Main(string[] args)
         {
             Console.WriteLine("Seja bem vindo!!!");
+            EfetuarOperação(true);
         }
 
         static int Soma(int a, int b)
@@ -55,6 +56,18 @@ namespace TesteDotNet
             {
                 throw new ExcecaoDeDivisao(e);
             }
+        }
+
+        static void EfetuarOperação(bool ehPrimeiraExecucao = false)
+        {
+            if (ehPrimeiraExecucao)
+                Console.WriteLine("As operações disponiveis são:" +
+                                  "\n - Soma (soma ou +)" +
+                                  "\n - Subtração (subtracao ou -)" +
+                                  "\n - Multiplicação (multiplicacao ou *)" +
+                                  "\n - Divisão (divisao ou /)" +
+                                  "\n\nVocê pode digitar tanto \"2+2\", \"quanto 2;soma;2\", quanto \"2;+;2\"" +
+                                  "\n\nMas se atente que você pode efetuar apenas uma operação de cada vez!");
         }
 
         private static void SeErro(Exception excecao)
