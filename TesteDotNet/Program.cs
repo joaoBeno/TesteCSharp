@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace TesteDotNet
 {
@@ -34,7 +36,7 @@ namespace TesteDotNet
             }
         }
 
-        static int Mutiplicacao(int a, int b)
+        static int Multiplicacao(int a, int b)
         {
             try
             {
@@ -81,15 +83,81 @@ namespace TesteDotNet
                 return;
             } else
             {
-                ProcessaOperacao(comando);
+                try
+                {
+                    ProcessaOperacao(comando);
+                }
+                catch (ExcecaoDeCalculo e)
+                {
+                    SeErro(e);
+                }
+
+                if (SairOuContinuar())
+                {
+                    Console.WriteLine("\nObrigado por utilizar nossa calculadora");
+                    Thread.Sleep(2000);
+                    return;
+                }
+
                 EfetuarOperação();
             }
         }
 
         private static void ProcessaOperacao(string comando)
         {
-            // TODO: Executar o comando...
-            Console.WriteLine("Resultado: {0}", comando);
+            switch (comando.IndexOf(';'))
+            {
+                case -1: OperacaoSemPontoVirgula(comando); break;
+                default: OperacaoComPontoVirgula(comando); break;
+            }
+        }
+
+        private static void OperacaoSemPontoVirgula(string comando)
+        {
+            
+            float resultado = 0.0f;
+            
+            var rgx = new Regex(@"[+-/*]");
+            if (!rgx.Match(comando).Success && comando.IndexOf("soma") < 0 && comando.IndexOf("subtracao") < 0
+                && comando.IndexOf("multiplicacao") < 0 && comando.IndexOf("divisao") < 0)
+            {
+                throw new ExcecaoDeCalculo("Formato do comando não reconhecido", new Exception("Operação (Ex: soma ou +) não encontrado!"));
+            }
+
+            if (Regex.Match(comando, @"[a-z]{4,13}").Success)
+            {
+                comando = comando.Replace("soma", "+");
+                comando = comando.Replace("subtracao", "-");
+                comando = comando.Replace("multiplicacao", "*");
+                comando = comando.Replace("divisao", "-");
+            }
+            
+            int posicaoOperacao = rgx.Match(comando).Index;
+            int operando = Int32.Parse(comando.Substring(0, posicaoOperacao));
+            string operacao = comando.Substring(posicaoOperacao, 1);
+            int operador = Int32.Parse(comando.Substring(posicaoOperacao + 1));
+
+            switch (operacao)
+            {
+                case "+": resultado = Soma(operando, operador); break;
+                case "-": resultado = Subtracao(operando, operador); break;
+                case "/": resultado = Divisao(operando, operador); break;
+                case "*": resultado = Multiplicacao(operando, operador); break;
+            }
+            
+            Console.WriteLine("Resultado da operacao {0}: {1}\n---\n", comando, resultado);
+        }
+
+        private static void OperacaoComPontoVirgula(string comando)
+        {
+            OperacaoSemPontoVirgula(comando.Replace(";",""));
+        }
+
+        private static bool SairOuContinuar()
+        {
+            Console.WriteLine("Pressione qualquer tecla para continuar ou ESC para sair");
+            var keyInfo = Console.ReadKey();
+            return keyInfo.Key == ConsoleKey.Escape;
         }
 
         private static void SeErro(Exception excecao)
@@ -97,7 +165,7 @@ namespace TesteDotNet
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(excecao.Message);
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("\t\t" + excecao.InnerException?.Message ?? "Erro desconhecido");
+            Console.WriteLine("\t" + excecao.InnerException?.Message ?? "Erro desconhecido");
             Console.ResetColor();
         }
 
