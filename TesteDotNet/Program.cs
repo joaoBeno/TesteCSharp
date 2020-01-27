@@ -66,6 +66,11 @@ namespace TesteDotNet
             }
         }
 
+        static void Media(params int[] args)
+        {
+            Console.WriteLine("A média calculada foi: {0}", Divisao(Soma(args), args.Length));
+        }
+
         static void EfetuarOperação(bool ehPrimeiraExecucao = false)
         {
             if (ehPrimeiraExecucao)
