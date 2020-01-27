@@ -70,6 +70,12 @@ namespace TesteDotNet
         {
             Console.WriteLine("A média calculada foi: {0}", Divisao(Soma(args), args.Length));
         }
+        
+        static void MediaDosPares(params int[] args)
+        {
+            int[] numeros = args.Where(x => x % 2 == 0).ToArray();
+            Console.WriteLine("A média calculada foi: {0}", Divisao(Soma(numeros), numeros.Length));
+        }
 
         static void EfetuarOperação(bool ehPrimeiraExecucao = false)
         {
