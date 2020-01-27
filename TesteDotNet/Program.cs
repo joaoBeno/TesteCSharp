@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -22,6 +23,11 @@ namespace TesteDotNet
             {
                 throw new ExcecaoDeSoma(e);
             }
+        }
+
+        static int Soma(params int[] numeros)
+        {
+            return numeros.Aggregate(0, Soma);
         }
 
         static int Subtracao(int a, int b)
