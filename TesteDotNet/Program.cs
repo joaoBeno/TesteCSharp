@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -89,34 +92,29 @@ namespace TesteDotNet
                                   "\n\nMas se atente que você pode efetuar apenas uma operação de cada vez!" +
                                   "\n\nPara sair, digite \"sair\", e para exibir esta ajuda, digite \"ajuda\"");
 
-            Console.WriteLine("Digite seu comando: ");
-            string comando = Console.ReadLine() ?? "";
+            Console.WriteLine("Lendo arquivo de comandos...\n\n");
 
-            if (comando.Equals("ajuda"))
+            var arq = new System.IO.StreamReader(@".\operacoes.txt");
+            string linha;
+            Dictionary<string, int> resultados = new Dictionary<string, int>();
+            
+            while((linha = arq.ReadLine()) != null)  
             {
-                EfetuarOperação(true);
-            } else if (comando.Equals("sair"))
-            {
-                return;
-            } else
-            {
-                try
+                if (!linha.Equals(""))
                 {
-                    ProcessaOperacao(comando);
-                }
-                catch (ExcecaoDeCalculo e)
-                {
-                    SeErro(e);
-                }
+                    var chave = linha.Substring(0, linha.IndexOf(';'));
+                    var cmdSplit = linha.Substring(linha.IndexOf(';') + 1).Split(';');
+                    var comando = (cmdSplit.Length == 3) ? cmdSplit[1] + RemoverAcentos(cmdSplit[0].ToLower()) + cmdSplit[2] : "";
 
-                if (SairOuContinuar())
-                {
-                    Console.WriteLine("\nObrigado por utilizar nossa calculadora");
-                    Thread.Sleep(2000);
-                    return;
+                    var resultado = (cmdSplit.Length > 3) ? Soma(cmdSplit.Skip(1).Select(x => Int32.Parse(x)).ToArray())
+                                                               : OperacaoSemPontoVirgula(comando, true);
+                    resultados.Add(chave, resultado ?? -1);
                 }
+            }
 
-                EfetuarOperação();
+            foreach (KeyValuePair<string,int> chaveValor in resultados)
+            {
+                Console.WriteLine("Nome: {0}, Resultado: {1}", chaveValor.Key, chaveValor.Value);
             }
         }
 
@@ -129,7 +127,7 @@ namespace TesteDotNet
             }
         }
 
-        private static void OperacaoSemPontoVirgula(string comando)
+        private static int? OperacaoSemPontoVirgula(string comando, bool retornar = false)
         {
             
             float resultado = 0.0f;
@@ -161,8 +159,13 @@ namespace TesteDotNet
                 case "/": resultado = Divisao(operando, operador); break;
                 case "*": resultado = Multiplicacao(operando, operador); break;
             }
-            
+
+            if (retornar)
+            {
+                return (int) resultado;
+            }
             Console.WriteLine("Resultado da operacao {0}: {1}\n---\n", comando, resultado);
+            return null;
         }
 
         private static void OperacaoComPontoVirgula(string comando)
@@ -184,6 +187,32 @@ namespace TesteDotNet
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("\t" + excecao.InnerException?.Message ?? "Erro desconhecido");
             Console.ResetColor();
+        }
+
+        private static string RemoverAcentos(string valor)
+        {
+            String normalizedString = valor.Normalize(NormalizationForm.FormD);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                switch (CharUnicodeInfo.GetUnicodeCategory(c))
+                {
+                    case UnicodeCategory.LowercaseLetter:
+                    case UnicodeCategory.UppercaseLetter:
+                    case UnicodeCategory.DecimalDigitNumber:
+                        stringBuilder.Append(c);
+                        break;
+                    case UnicodeCategory.SpaceSeparator:
+                    case UnicodeCategory.ConnectorPunctuation:
+                    case UnicodeCategory.DashPunctuation:
+                        stringBuilder.Append('_');
+                        break;
+                }
+            }
+            string result = stringBuilder.ToString();
+            return String.Join("_", result.Split(new char[] { '_' }
+                , StringSplitOptions.RemoveEmptyEntries));
         }
 
         private class ExcecaoDeCalculo: Exception
