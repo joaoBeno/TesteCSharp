@@ -1,0 +1,8 @@
+﻿José;Soma;10;2
+Adailtom;Divisão;10;2
+Raimundo;Multiplicacao;10;2
+Antonio;Subtração;10;2
+Joaquim;Subtração;10;2
+Paula;Divisão;10;2
+
+Joao Beno Schreiner Junior;Soma;10;20;2;5;12
